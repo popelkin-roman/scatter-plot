@@ -38,15 +38,23 @@ const drawCahrt = (data) => {
         .attr("data-yvalue", d => new Date("2000-01-01T00:" + d.Time))
         .style("fill", d=> color(d.Doping !== ''))
         .on("mouseover", (e, d) => {
-            d3.select("#tooltip")
+            e.target.style.fill = "#aaa";
+            const tooltip = d3.select("#tooltip")
                 .attr("data-year", d.Year)
+                .attr("data-time", d.Time)
                 .style("visibility", "visible")
+                .style("transform", `translateX(${e.clientX}px) translateY(${e.clientY}px)`)
+            tooltip.append("div")
                 .text(d.Year)
-                // .style("transform", `translateX(${e.clientX}px) translateY(${e.clientY}px)`)
+            tooltip.append("div")
+                .text(d.Time)
         })
-        .on("mouseout", () => {
+        .on("mouseout", (e,d) => {
+            e.target.style.fill = color(d.Doping !== '');
             d3.select("#tooltip")
-                .style("visibility", "hidden");
+                .style("visibility", "hidden")
+                .text("");
+            
         })
     
     const xAxis = d3.axisBottom(scaleYear);
