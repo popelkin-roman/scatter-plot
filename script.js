@@ -8,6 +8,7 @@ const drawCahrt = (data) => {
     const w = 1000;
     const h = 500;
     const padding = 50;
+    const color = d3.scaleOrdinal(d3.schemeDark2);
     const minYear = new Date(0).setFullYear(d3.min(data, d => d.Year - 1));
     const maxYear = new Date(0).setFullYear(d3.max(data, d => d.Year + 1));
     const minTime = new Date("2000-01-01T00:"+ d3.min(data, d => d.Time));
@@ -35,6 +36,7 @@ const drawCahrt = (data) => {
         .attr("class", "dot")
         .attr("data-xvalue", d => d.Year)
         .attr("data-yvalue", d => new Date("2000-01-01T00:" + d.Time))
+        .style("fill", d=> color(d.Doping !== ''))
         .on("mouseover", (e, d) => {
             d3.select("#tooltip")
                 .attr("data-year", d.Year)
@@ -59,27 +61,42 @@ const drawCahrt = (data) => {
         .attr("id", "y-axis")
         .attr("transform", `translate(${padding}, ${0})`)
         .call(yAxis);
+    
+    const legendContainer = svg.append('g').attr('id', 'legend');
 
-    // let yAxisEl = yAxisLine.select(".domain");
-    // let newYAxisD = yAxisEl.attr("d").slice(0,-2);
-    // yAxisEl.attr("d", newYAxisD);
+    const legend = legendContainer
+          .selectAll('#legend')
+          .data(color.domain())
+          .enter()
+          .append('g')
+          .attr('class', 'legend-label')
+          .attr('transform', function (d, i) {
+            return 'translate(0,' + (h / 2 - i * 20) + ')';
+          });
+    
+        legend
+          .append('rect')
+          .attr('x', w - 18)
+          .attr('width', 18)
+          .attr('height', 18)
+          .style('fill', color);
+    
+        legend
+          .append('text')
+          .attr('x', w - 24)
+          .attr('y', 9)
+          .attr('dy', '.35em')
+          .style('text-anchor', 'end')
+          .text(function (d) {
+            if (d) {
+              return 'Riders with doping allegations';
+            } else {
+              return 'No doping allegations';
+            }
+          });
 
     d3.select(".scatterplot")
         .append("div")
         .attr("id", "tooltip")
         .style("visibility", "hidden");
 }
-
-// function drawCahrt(data){
-//     const minTime = "23:00";
-//     const maxTime = "25:00";
-//     const firstDate = new Date("2000-01-01T00:"+minTime);
-//     const lastDate = new Date("2000-01-01T00:"+maxTime);
-//     console.log('firstDate', firstDate);
-//     console.log('lastDate', lastDate);
-
-//     const scaleTime = d3.scaleTime()
-//         .domain([firstDate, lastDate])
-//         .range([0, 500]);
-//     console.log(scaleTime(Date.parse("2000-01-01T23:50")));
-// }
